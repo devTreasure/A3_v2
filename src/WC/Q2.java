@@ -5,7 +5,9 @@ import org.apache.hadoop.mapreduce.Mapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import org.apache.hadoop.io.Text;
-
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.examples.WordCount.IntSumReducer;
 import org.apache.hadoop.fs.Path;
@@ -16,9 +18,11 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
+import WC.Q2.Q2Mapper.Q2Reducer;
+
 public class Q2 {
 
-	public static class Tokeniizermapper extends Mapper<LongWritable, Text, Text, FloatWritable> {
+	public static class Q2Mapper extends Mapper<LongWritable, Text, Text, FloatWritable> {
 		public final static FloatWritable tempo = new FloatWritable();
 
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
@@ -87,7 +91,7 @@ public class Q2 {
 
 		}
 
-		public static class IntSumReducer extends Reducer<Text, FloatWritable, Text, FloatWritable> {
+		public static class Q2Reducer extends Reducer<Text, FloatWritable, Text, FloatWritable> {
 			public FloatWritable result = new FloatWritable();
 
 			@Override
@@ -107,10 +111,12 @@ public class Q2 {
 
 					result.set(average_tempo);
 
-					context.write(new Text("Total avergae tempo acorss all songs: "), result);
+					context.write(new Text("Avg Tempo:"), result);
 
 				}
 
+				
+				
 				catch (Exception ex) {
 					System.out.println(ex.toString());
 				}
@@ -119,21 +125,31 @@ public class Q2 {
 
 		}
 
-
 	}
-	
-	public static void main(String[] args) throws Exception {
 
-		Configuration conf = new Configuration();
-		Job job = Job.getInstance(conf, "Q2");
-		job.setJarByClass(Q2.class);
-		job.setMapperClass(Tokeniizermapper.class);
-		job.setReducerClass(IntSumReducer.class);
-		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(FloatWritable.class);
-		FileInputFormat.addInputPath(job, new Path(args[0]));
-		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-		System.exit(job.waitForCompletion(true) ? 0 : 1);
+	public static void main(String[] args) throws Exception {
+		for (String string : args) {
+			System.out.println(string);
+		}
+
+		try {
+
+			Configuration conf = new Configuration();
+			Job job = Job.getInstance(conf, "Q2Job");
+			job.setJarByClass(Q2.class);
+			job.setMapperClass(Q2Mapper.class);
+			job.setReducerClass(Q2Reducer.class);
+			job.setOutputKeyClass(Text.class);
+			job.setOutputValueClass(FloatWritable.class);
+			FileInputFormat.addInputPath(job, new Path(args[0]));
+			FileOutputFormat.setOutputPath(job, new Path(args[1]));
+			System.exit(job.waitForCompletion(true) ? 0 : 1);
+
+		} catch (Exception ex) {
+			System.out.println(ex.toString());
+		}
+		
+		
 
 	}
 }
