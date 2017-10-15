@@ -9,8 +9,6 @@ public class StringUtility {
 	
 	public static boolean hasOnlyAlhabats(String input) {
 		
-		
-		
 		if(input == null || input.trim().length()==0) {
 			return false;
 		}

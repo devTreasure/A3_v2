@@ -89,6 +89,8 @@ public class Q4 {
 			}
 
 		}
+		
+	}
 
 		public static class MyReducer extends Reducer<FloatWritable, Text, Text, FloatWritable> {
 
@@ -145,5 +147,5 @@ public class Q4 {
 			System.exit(job.waitForCompletion(true) ? 0 : 1);
 
 		}
-	}
+	
 }

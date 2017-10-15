@@ -21,8 +21,7 @@ public class Q1 {
 
 	public static class Q1Mappaer extends Mapper<LongWritable, Text, Text, Text> {
 
-		Pattern guidString = Pattern.compile(
-				"^(\\{){0,1}[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}(\\}){0,1}$");
+		Pattern guidString = Pattern.compile("^(\\{){0,1}[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}(\\}){0,1}$");
 
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			// StringTokenizer itr = new StringTokenizer(value.toString());
@@ -64,7 +63,7 @@ public class Q1 {
 
 						for (int i = 0; i < strmbtagsCount.length; i++) {
 
-							if (!(strmbtagsCount[i].trim().isEmpty()))
+						if (!(strmbtagsCount[i].trim().isEmpty()))
 								tagRating[i] = Integer.parseInt(strmbtagsCount[i].trim());
 						}
 
@@ -160,6 +159,11 @@ public class Q1 {
 	
 	public static void main(String[] args) throws Exception {
 
+		for(String str:args)
+		{
+			System.out.println(str);
+		}
+		
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf, "Q1");
 		job.setJarByClass(Q1.class);

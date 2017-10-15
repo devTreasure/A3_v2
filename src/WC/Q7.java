@@ -57,26 +57,28 @@ public class Q7 {
 		       context.write(key, new IntWritable(sum));
 		}
 
-		public static void main(String[] args) throws Exception {
 
-			Configuration conf = new Configuration();
-			Job job = Job.getInstance(conf, "Q7");
-			job.setJarByClass(Q7.class);
+	}
+	
+	public static void main(String[] args) throws Exception {
 
-			job.setMapOutputKeyClass(Text.class);
-			job.setMapOutputValueClass(IntWritable.class);
+		Configuration conf = new Configuration();
+		Job job = Job.getInstance(conf, "Q7");
+		job.setJarByClass(Q7.class);
 
-			job.setMapperClass(Tokeniizermapper.class);
-			// job.setCombinerClass(IntSumReducer.class);
-			job.setReducerClass(IntSumReducer.class);
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(IntWritable.class);
 
-			job.setOutputKeyClass(Text.class);
-			job.setOutputValueClass(IntWritable.class);
+		job.setMapperClass(Tokeniizermapper.class);
+		// job.setCombinerClass(IntSumReducer.class);
+		job.setReducerClass(IntSumReducer.class);
 
-			FileInputFormat.addInputPath(job, new Path(args[0]));
-			FileOutputFormat.setOutputPath(job, new Path(args[1]));
-			System.exit(job.waitForCompletion(true) ? 0 : 1);
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(IntWritable.class);
 
-		}
+		FileInputFormat.addInputPath(job, new Path(args[0]));
+		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+		System.exit(job.waitForCompletion(true) ? 0 : 1);
+
 	}
 }
