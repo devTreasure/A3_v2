@@ -32,7 +32,7 @@ public class Q3 {
 	}
 
 	public static class Tokeniizermapper extends Mapper<LongWritable, Text, Text, FloatWritable> {
-		private final static FloatWritable dancability = new FloatWritable();
+
 		private Text atrtistID = new Text();
 
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
@@ -44,7 +44,7 @@ public class Q3 {
 
 					String songID = "";
 
-					float fltdanceability=0;
+					float fltdanceability = 0;
 
 					songID = datasplit[43];
 
@@ -55,13 +55,13 @@ public class Q3 {
 					if (strDancebility.contains("[")) {
 						arrayFound = true;
 					}
-					String[] listDbality = null;
-					ArrayList<Float> floatDbality = new ArrayList<Float>();
-
-					float avgDbality = 0;
-					float avgSumDbality = 0;
 
 					if (arrayFound) {
+						float avgDbality = 0;
+						float avgSumDbality = 0;
+						String[] listDbality = null;
+						ArrayList<Float> floatDbality = new ArrayList<Float>();
+
 						strDancebility = strDancebility.trim().replaceAll("\\[", "").replaceAll("\\]", "");
 						listDbality = strDancebility.split(",");
 
@@ -79,16 +79,16 @@ public class Q3 {
 								avgDbality = avgSumDbality / (floatDbality.size() - 1);
 							}
 						}
-
+						FloatWritable dancability = new FloatWritable();
 						dancability.set(avgDbality);
 
 						context.write(new Text("song-dancability"), dancability);
 					} else {
 						fltdanceability = Float.parseFloat(datasplit[21]);
-
+						FloatWritable dancability = new FloatWritable();
 						dancability.set(fltdanceability);
-						if(fltdanceability!=0.0)
-						 context.write(new Text("song-dancability"), dancability);
+					//	if (fltdanceability != 0.0)
+						context.write(new Text("song-dancability"), dancability);
 					}
 
 				}
@@ -102,19 +102,17 @@ public class Q3 {
 
 	public static class IntSumReducer extends Reducer<Text, FloatWritable, Text, FloatWritable> {
 
-
-
 		@Override
 		public void reduce(Text key, Iterable<FloatWritable> values, Context context)
 				throws IOException, InterruptedException {
 			FloatWritable result = new FloatWritable();
 			ArrayList<Float> daceabilityList = new ArrayList<Float>();
-	
-			int totalcounter=0;
+
+			int totalcounter = 0;
 			for (FloatWritable val : values) {
 
 				daceabilityList.add(val.get());
-				totalcounter+=1;
+				totalcounter += 1;
 			}
 
 			Collections.sort(daceabilityList);

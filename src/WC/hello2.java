@@ -115,7 +115,7 @@ public class hello2 {
 
 			Job job = Job.getInstance(conf, "Word Count");
 
-			job.setJarByClass(Q4.class);
+			job.setJarByClass(Q4OLD2.class);
 
 			job.setNumReduceTasks(1);
 

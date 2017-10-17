@@ -10,8 +10,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -23,24 +21,24 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
-import org.apache.hadoop.io.IntWritable;
+
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.joda.time.DateTime;
 import org.apache.hadoop.mapreduce.Mapper;
 
-public class Q4latest {
+public class Q4OLD2 {
 
-	public static class MyMapper extends Mapper<LongWritable, Text, Text, FloatWritable> {
-
+	public static class MyMapper extends Mapper<LongWritable, Text, FloatWritable, Text> {
+		Pattern regex = Pattern.compile("[,|]");
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
 			String[] datasplit = value.toString().split("\t");
-
+			
+			
 			if (key.get() != 0) {
 
 				Pattern regex = Pattern.compile("[,|]");
@@ -51,9 +49,9 @@ public class Q4latest {
 
 					String newstr = datasplit[47].toString().trim().replaceAll("\\[", "").replaceAll("\\]", "");
 					System.out.println(newstr);
-
+				
 					String[] finalS = newstr.split(",");
-
+				
 					float[] int_tempo = new float[finalS.length];
 					System.out.println(finalS.length);
 					float sum = 0;
@@ -70,70 +68,56 @@ public class Q4latest {
 						}
 
 						avg_tempoo = sum / int_tempo.length;
-						System.out.println(avg_tempoo);
-						if (avg_tempoo != 0.0)
-							context.write(new Text(datasplit[11].toString().trim()), new FloatWritable(avg_tempoo));
-
+					    System.out.println(avg_tempoo);
+					    if(avg_tempoo!=0.0)
+						 context.write(new FloatWritable(avg_tempoo), new Text(datasplit[11].toString().trim()));
+						
 					}
 
 				} else {
 					FloatWritable f = new FloatWritable();
-					System.out.println(f.toString() + ":" + datasplit[11].toString().trim());
-					float val1 = Float.parseFloat(datasplit[47].toString().trim());
+					System.out.println(f.toString() + ":" +datasplit[11].toString().trim());
+					float val1=Float.parseFloat(datasplit[47].toString().trim());
 					f.set(val1);
 
 					Text t = new Text();
 					t.set(datasplit[11].toString().trim());
-					if (val1 != 0.0)
-						context.write(t, f);
+					if(val1!=0.0)
+					 context.write(f, t);
 				}
 
 			}
 
 		}
+		
+	}
 
-		public static class MyReducer extends Reducer<Text, FloatWritable, Text, FloatWritable> {
+		public static class MyReducer extends Reducer<FloatWritable, Text, Text, FloatWritable> {
 
-			// HashMap<String, Float> top10ArtistHotttness = new HashMap<String, Float>();
+			HashMap<String, Float> top10ArtistHotttness = new HashMap<String, Float>();
 
-			ArrayList<tempo1> artistGlobalTempoCollection = new ArrayList<tempo1>();
+			int TOP_10_RECORDS = 0;
 
 			@Override
-			public void reduce(Text key, Iterable<FloatWritable> values, Context context)
+			public void reduce(FloatWritable key, Iterable<Text> values, Context context)
 					throws IOException, InterruptedException {
-				ArrayList<tempo1> artistTempoCollection = new ArrayList<tempo1>();
 
-				for (FloatWritable val : values) {
-					artistTempoCollection.add(new tempo1(key.toString(), val.get()));
+				for (Text val : values) {
 
-				}
-
-				Collections.sort(artistTempoCollection, new tempo1());
-
-				if (artistTempoCollection.size() > 0) {
-					artistGlobalTempoCollection.add(artistTempoCollection.get(0));
-				}
-
-				artistTempoCollection.clear();
-			}
-
-			@Override
-			protected void cleanup(Context context) throws IOException, InterruptedException {
-				Collections.sort(artistGlobalTempoCollection, new tempo1());
-				try {
-					for (int i = 0; i < 10; i++) {
-
-						{
-							context.write(new Text(artistGlobalTempoCollection.get(i).artistName),
-									new FloatWritable(artistGlobalTempoCollection.get(i).tempo));
-
-						}
+					if (TOP_10_RECORDS < 10) {
+						context.write(val, key);
+					} else {
+						break;
 					}
-				} catch (Exception ex) {
-					System.out.println(ex.getMessage());
+
+					TOP_10_RECORDS += 1;
+
 				}
 
 			}
+			
+			
+			
 
 		}
 
@@ -141,9 +125,9 @@ public class Q4latest {
 
 			Configuration conf = new Configuration();
 
-			Job job = Job.getInstance(conf, "Word Count");
+			Job job = Job.getInstance(conf, "Q4");
 
-			job.setJarByClass(Q4latest.class);
+			job.setJarByClass(Q4OLD2.class);
 
 			job.setNumReduceTasks(1);
 
@@ -151,8 +135,8 @@ public class Q4latest {
 
 			job.setReducerClass(MyReducer.class);
 
-			job.setMapOutputKeyClass(Text.class);
-			job.setMapOutputValueClass(FloatWritable.class);
+			job.setMapOutputKeyClass(FloatWritable.class);
+			job.setMapOutputValueClass(Text.class);
 
 			job.setOutputKeyClass(Text.class);
 			job.setOutputValueClass(FloatWritable.class);
@@ -163,5 +147,5 @@ public class Q4latest {
 			System.exit(job.waitForCompletion(true) ? 0 : 1);
 
 		}
-	}
+	
 }

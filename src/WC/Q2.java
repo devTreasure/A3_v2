@@ -23,7 +23,7 @@ import WC.Q2.Q2Mapper.Q2Reducer;
 public class Q2 {
 
 	public static class Q2Mapper extends Mapper<LongWritable, Text, Text, FloatWritable> {
-		public final static FloatWritable tempo = new FloatWritable();
+
 
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			// StringTokenizer itr = new StringTokenizer(value.toString());
@@ -43,6 +43,7 @@ public class Q2 {
 
 					String strTempo = "";
 					strTempo = datasplit[47];
+					System.out.println(strTempo);
 
 					boolean arrayFound = false;
 					if (strTempo.contains("[")) {
@@ -55,6 +56,7 @@ public class Q2 {
 					float avgSumtempo = 0;
 
 					if (arrayFound) {
+					//	System.out.println(strTempo);
 						strTempo = strTempo.trim().replaceAll("\\[", "").replaceAll("\\]", "");
 						listtempo = strTempo.split(",");
 
@@ -72,15 +74,17 @@ public class Q2 {
 								avgtempo = avgSumtempo / (floatTempo.size() - 1);
 							}
 						}
-
+						FloatWritable tempo = new FloatWritable();
 						tempo.set(avgtempo);
-
-						context.write(new Text("songTempo"), tempo);
+					//	System.out.println(tempo);
+					//	context.write(new Text("songTempo"), tempo);
 
 					} else {
+						FloatWritable tempo = new FloatWritable();
 						fltTempo = Float.parseFloat(datasplit[47]);
 						tempo.set(fltTempo);
-						context.write(new Text("songTempo"), tempo);
+						//context.write(new Text("songTempo"), tempo);
+						System.out.println(tempo);
 
 					}
 
@@ -111,7 +115,7 @@ public class Q2 {
 
 					result.set(average_tempo);
 
-					context.write(new Text("Avg Tempo:"), result);
+				//	context.write(new Text("Avg Tempo:"), result);
 
 				}
 

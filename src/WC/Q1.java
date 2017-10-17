@@ -28,13 +28,12 @@ public class Q1 {
 
 			String[] datasplit = value.toString().split("\t");
 			if (key.get() != 0) {
-				System.out.println("artist");
+		
 				System.out.println(datasplit[11]);
 				String strGenere = datasplit[9];
-				System.out.println(strGenere);
-				boolean test = strGenere.equalsIgnoreCase("[]");
+
 				Matcher matcher = guidString.matcher(strGenere);
-				System.out.println(strGenere);
+		
 
 				boolean isGUID = false;
 				isGUID = matcher.find();
