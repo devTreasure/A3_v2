@@ -106,7 +106,7 @@ public class Q8D {
 										if (tagRating[i] != 0) {
 											//System.out.println("key:" + strFGenere[i]);
 
-											context.write(new Text(strFGenere[i] ),	new IntWritable(tagRatingunshorted[i]));
+											context.write(new Text(strFGenere[i].toString().trim() ),	new IntWritable(tagRatingunshorted[i]));
 										}
 								}
 

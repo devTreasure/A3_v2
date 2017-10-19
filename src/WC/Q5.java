@@ -3,13 +3,11 @@ package WC;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,41 +18,38 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 public class Q5 {
 
 	public static class Tokeniizermapper extends Mapper<LongWritable, Text, Text, Text> {
 		private final static IntWritable one = new IntWritable(1);
 		private Text atrtistID = new Text();
-	    Pattern guidString = Pattern.compile("^(\\{){0,1}[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}(\\}){0,1}$");
-		
+		Pattern guidString = Pattern.compile(
+				"^(\\{){0,1}[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}(\\}){0,1}$");
+
+		Pattern aplhanmer = Pattern.compile("^[0-9a-zA-Z]+$");
+
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			// StringTokenizer itr = new StringTokenizer(value.toString());
 
 			String[] datasplit = value.toString().split("\t");
-			
-				
-		
-	
-		
+
 			if (key.get() != 0) {
-				System.out.println("artist");
-				System.out.println(datasplit[11]);
+				// System.out.println("artist");
+				// System.out.println(datasplit[11]);
 				String strGenere = datasplit[9];
-				System.out.println(strGenere);
-				boolean test = strGenere.equalsIgnoreCase("[]");
+				// System.out.println(strGenere);
+				// boolean test = strGenere.equalsIgnoreCase("[]");
 				Matcher matcher = guidString.matcher(strGenere);
-				System.out.println(strGenere);
-				
-				boolean isGUID= false;
-				isGUID=matcher.find();
-				
-				if (strGenere != null && strGenere.length() >= 1 &&  (!isGUID) 
+				// System.out.println(strGenere);
+
+				boolean isGUID = false;
+				isGUID = matcher.find();
+
+				if (strGenere != null && strGenere.length() >= 1 && (!isGUID)
 						&& (!(strGenere.toString() == "") && (!strGenere.equalsIgnoreCase("[]"))
 								&& (datasplit[42] != null && !datasplit[42].trim().equalsIgnoreCase("nan")))) {
 
@@ -113,28 +108,32 @@ public class Q5 {
 
 									if (tagRating.length >= 1)
 										if (tagRating[i] != 0) {
-											System.out.println("key:" + strFGenere[i]);
+											// System.out.println("key:" + strFGenere[i]);
 
-											System.out.println(
-													datasplit[11] + "--" + strFGenere[i] + ":" + tagRatingunshorted[i]);
+											// System.out.println(
+											// datasplit[11] + "--" + strFGenere[i] + ":" + tagRatingunshorted[i]);
 											// String strgenere=strFGenere[i] ;
 											String strHotness = datasplit[42];
 											strHotness = datasplit[42].trim();
+											if (strHotness.contains("[")) {
+												System.out.println("#################################");
+												System.out.println("Hotness is an araay");
+												System.out.println("#################################");
+											}
 
-											int sz = strHotness.length();
+											if (!strHotness.equalsIgnoreCase("0.0")
+													&& (!strHotness.equalsIgnoreCase("nan"))) {
 
-											if (!strHotness.equalsIgnoreCase("0.0")  &&  (!strHotness.equalsIgnoreCase("nan"))) {
-												
-												if(strHotness.contains("AR4SBWX1187FB4D6BE)"))
-												{
-													System.out.println("***********H9tness wrongly formed****************");
+												if (strHotness.contains("AR4SBWX1187FB4D6BE)")) {
+													System.out.println(
+															"***********H9tness wrongly formed****************");
 													System.out.println(datasplit[50]);
 												}
-												
-												System.out.println(
-														strHotness + ":" + datasplit[11] + ":" + datasplit[50]);
 
-												context.write(new Text(strFGenere[i]), new Text(
+												// System.out.println(
+												// strHotness + ":" + datasplit[11] + ":" + datasplit[50]);
+
+												context.write(new Text(strFGenere[i].toString().trim()), new Text(
 														strHotness + ":" + datasplit[11] + ":" + datasplit[50]));
 											}
 										}
@@ -147,13 +146,14 @@ public class Q5 {
 							strHotness = datasplit[42].trim();
 							System.out.println(strHotness);
 
-							if (!strHotness.equalsIgnoreCase("0.0")
-									&& (!strHotness.contains("/") && (!strHotness.equalsIgnoreCase("nan")))) {
+							if (!strHotness.equalsIgnoreCase("0.0") && (!strHotness.contains("/"))
+									&& (!datasplit[11].contains(":")) && (!datasplit[50].contains(":"))
+									&& (!strHotness.equalsIgnoreCase("nan"))) {
 
-								System.out.println("key: " + strFGenere[index] + " -- " + strHotness + ":"
-										+ datasplit[11] + ":" + datasplit[50]);
+								// System.out.println("key: " + strFGenere[index] + " -- " + strHotness + ":"
+								// + datasplit[11] + ":" + datasplit[50]);
 
-								context.write(new Text(strFGenere[index]),
+								context.write(new Text(strFGenere[index].toString().trim()),
 										new Text(strHotness + ":" + datasplit[11] + ":" + datasplit[50]));
 							}
 						}
@@ -169,76 +169,76 @@ public class Q5 {
 
 	public static class reducer extends Reducer<Text, Text, Text, Text> {
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 
-			ArrayList<Hotness> hotnesses = new ArrayList<>();
-			try
-			{
-			for (Text val : values)
+			// ArrayList<Hotness> hotnesses = new ArrayList<Hotness>();
+			TreeMap<Float, String> hot = new TreeMap<>(Collections.reverseOrder());
+			try {
 
-			{
-				// System.out.println(val);
+				for (Text val : values)
 
-				String[] str = val.toString().split(":");
-				 System.out.println(key+ ":" + val);
-				 System.out.println(key+ ":" + str[0]);
-				 
-				if (str.length > 1) {
-					if (!str[0].equals("nan")) {
-						Float myval = Float.parseFloat(str[0].trim());
-						if (!myval.isNaN()) // handle NAN for file 16.tsv
-							hotnesses.add(new Hotness(myval, str[1], str[2]));
+				{
+
+					// System.out.println(val.toString());
+					String[] str = val.toString().split(":");
+
+					boolean allowed = false;
+					Float myval = 0f;
+					try {
+						myval = Float.parseFloat(str[0].toString().trim());
+						allowed = true;
+					} catch (Exception e) {
+						// ignore
 					}
+
+					if (allowed) {
+						if (str.length > 1)
+							hot.put(myval, str[1].toString().trim() + " : " + str[2].toString().trim());
+					}
+
 				}
+
+				// Collections.sort(hotnesses, new HotnessComparator());
+
+				int iterateCount = 0;
+				iterateCount = hot.size();
+				
+				int mycounter=0;
+				for(Map.Entry<Float,String> entry : hot.entrySet()) {
+					  Float keys = entry.getKey();
+					  String value = entry.getValue();
+					  if( mycounter < 10)
+					  {
+					    if(mycounter>10) break;
+					    context.write(new Text(key +":"+keys.toString()), new Text(value));
+					  }
+					  mycounter+=1;
+					}
+
+				
+				hot.clear();
+
+			} catch (Exception ex) {
+				System.out.println("falied for " + key);
+				System.out.println(ex.getMessage());
 			}
 
-			Collections.sort(hotnesses, new Hotness());
-			
-			int iterateCount=hotnesses.size();
-			
-			if(iterateCount>10)
-			{
-				for (int i = 0; i < 10 ; i++) {
-
-					context.write(new Text(key), new Text(
-							hotnesses.get(i).hotNum + ":" + hotnesses.get(i).artistname + ":" + hotnesses.get(i).songName));
-				}
-			}
-			else
-			{
-				for (int i = 0; i < hotnesses.size(); i++) {
-
-					context.write(new Text(key), new Text(
-							hotnesses.get(i).hotNum + ":" + hotnesses.get(i).artistname + ":" + hotnesses.get(i).songName));
-				}
-			}
-	
-			}
-			catch(Exception ex)
-			{
-				System.err.println("falied for " + key);
-				System.err.println(ex.getMessage());
-			}
-
-			hotnesses.clear();
 		}
 
-		
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 
 		Configuration conf = new Configuration();
 		Job job = Job.getInstance(conf, "Q5");
+		job.setNumReduceTasks(10);
 		job.setJarByClass(Q5.class);
 
 		job.setMapOutputKeyClass(Text.class);
 		job.setMapOutputValueClass(Text.class);
 
 		job.setMapperClass(Tokeniizermapper.class);
-		// job.setCombinerClass(IntSumReducer.class);
 		job.setReducerClass(reducer.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(IntWritable.class);

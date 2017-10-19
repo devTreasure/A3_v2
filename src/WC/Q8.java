@@ -5,7 +5,9 @@ import org.apache.hadoop.mapreduce.Mapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +21,7 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
@@ -69,7 +72,7 @@ public class Q8 {
 
 									String strgenere = strFGenere[i];
 
-									//System.out.println(strGenere);
+
 									Matcher matcherGuid = guidString.matcher(strGenere);
 									Matcher matcherdigits = DigitsInString.matcher(strGenere);
 
@@ -78,7 +81,7 @@ public class Q8 {
 									boolean isnumeric = matcherdigits.find();
 
 									if (!isGUID && !isnumeric)
-										context.write(new Text(strFGenere[i]), new IntWritable(mbtagFre[i]));
+										context.write(new Text(strFGenere[i].trim()), new IntWritable(mbtagFre[i]));
 
 								}
 
@@ -94,43 +97,48 @@ public class Q8 {
 
 	public static class IntSumReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
 
-		ArrayList<Genere> lstGenere = new ArrayList<>();
-
+		//ArrayList<Genere> lstGenere = new ArrayList<>();
+		TreeMap<Integer, String> lstGenere = new TreeMap<>(Collections.reverseOrder());
+		
 		@Override
 		public void reduce(Text key, Iterable<IntWritable> values, Context context)
-				throws IOException, InterruptedException {
+				throws IOException, InterruptedException{
 			int sum = 0;
 
 			for (IntWritable val : values) {
 				sum += val.get();
 
 			}
-			lstGenere.add(new Genere(key.toString(), sum));
-		}
+			
+			lstGenere.put(sum, key.toString());
+		
+		
+		
 
+		
+		
+
+	}
+		
+		
 		@SuppressWarnings("unchecked")
 		@Override
 		protected void cleanup(Context context) throws IOException, InterruptedException {
-
-			Collections.sort(lstGenere, new Genere());
-			try
-			{
-			for (int i=0;i< lstGenere.size() ; i++) {
-				
-				{
-				context.write(new Text(lstGenere.get(i).GenereName), new IntWritable(lstGenere.get(i).hotCount));
-				
+			int iterateCount = 0;
+		
+			
+			int mycounter=0;
+			for(Map.Entry<Integer,String> entry : lstGenere.entrySet()) {
+				  Integer INTkeys = entry.getKey();
+				  String value = entry.getValue();
+				  if( mycounter < 10)
+				  {
+				    if(mycounter>10) break;
+				     context.write(new Text(value), new IntWritable(INTkeys));
+				  }
+				  mycounter+=1;
 				}
-			}
-			}
-			catch(Exception ex)
-			{
-				System.out.println(ex.getMessage());
-			}
-
 		}
-
-
 	}
 	
 	public static void main(String[] args) throws Exception {

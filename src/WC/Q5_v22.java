@@ -163,7 +163,7 @@ public class Q5_v22 {
 				}
 			}
 
-			Collections.sort(hotnesses, new Hotness());
+			Collections.sort(hotnesses, new HotnessComparator());
 
 			for (int i = 0; i < hotnesses.size(); i++) {
 
